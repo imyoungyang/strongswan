@@ -1,20 +1,16 @@
-# VPN on AWS and Strongswan
+# AWS VPN and Strongswan
 
 If in the same region, you can use vpc-peering. If cross region, you need to create VPN connections to build up site-to-site vpn.
 
 There are two ways to setup site-to-site vpn connections: Strongswan-to-strongswan, or Strongswan-to-AWS-CGW(customer gateway).
 
-## Strongswan-to-AWS-CGW
-
-### Lab configuration
-
-#### Architecture diagram
+## Architecture diagram
 
 ![](/images/dg-strongswan.png)
 
-#### Strongswan configuration
+## Strongswan VPC configuration
 
-VPC_1 Settings:
+### VPC Settings
   * region: us-west-1
   * VPC: 172.50.0.0/16
   * Subnet: 172.50.0.0/24
@@ -26,14 +22,14 @@ VPC_1 Settings:
 
   ![](/images/sg-172-50-0-0.png)
 
-##### Strongswan server configuration
+### Strongswan server configuration
   * instance type: t2.micro
   * OS: ubuntu 16.04
   * **Elastic IPs**: 13.56.167.238 (must create one because we use static VPN CGW)
   * Security Groups: sg-172-50-0-0
   * **Disable Source/Dest. Check**
 
-Install strongswan packages
+#### Install strongswan packages
   <pre>
   sudo su
   apt-get update
@@ -43,7 +39,7 @@ Install strongswan packages
 
 After you download VPN configuration from AWS, you need to config strongswan two files: `/etc/ipsec.conf` and `/etc/ipsec.secrets`
 
-* ipsec.conf
+#### ipsec.conf
    * **Important**
       * `keyexchange=ikev1` Currently, AWS does not support ikev2
       * `authby=psk` PSK: pre shared key. The key get from AWS VPC > VPN Connections > Download configuration. The PSK key is at `/etc/ipsec.secrets`
@@ -87,7 +83,7 @@ conn vpg-52.18.222.29
        auto=add
 </pre>
 
-* ipsec.secrets
+#### ipsec.secrets
    * first column is AWS VPN outside IP Address. AWS will have two tunnels.
 
 <pre>
@@ -95,7 +91,8 @@ conn vpg-52.18.222.29
 52.18.222.29  : PSK "place PSK key for tunnel 2"
 </pre>
 
-* After setup the `ipsec.conf` and `ipsec.secrets`, run the commands
+#### Start strongswan service
+ After setup the `ipsec.conf` and `ipsec.secrets`, run the commands
 
 <pre>
   systemctl restart strongswan
@@ -105,10 +102,9 @@ conn vpg-52.18.222.29
   ipsec status
 </pre>
 
-#### AWS VPN Connections Configuration
+## AWS VPN Connections Configuration
 
-VPC_2 Settings:
-
+### VPC Settings
   * region: eu-west-1
   * VPC: 172.60.0.0/16
   * Subnet: 172.60.0.0/24
@@ -120,7 +116,7 @@ VPC_2 Settings:
 
   ![](/images/sg-172-60-0-0.png)
 
-AWS VPN Connections setup
+### AWS VPN Connections setup
 
   * Setup sequences:
 
@@ -145,7 +141,7 @@ AWS VPN Connections setup
 
    ![](/images/vpn-config-download.png)
 
-   * Follow the instruction `vpn-config-172-60-0-0.txt` to configure strongswan server two files: `/etc/ipsec.conf` and `/etc/ipsec.secrets`. Then restart strongswan services. See the [strongswan configure section](##### Strongswan server configuration)
+   * Follow the instruction `vpn-config-172-60-0-0.txt` to configure strongswan server two files: `/etc/ipsec.conf` and `/etc/ipsec.secrets`. Then restart strongswan services. See the [ipsec.conf](#### ipsec.conf) and [ipsec.secrets](#### ipsec.secrets)
 
    * If successfully, you will see strongswan server with the following messages:
 
@@ -157,7 +153,7 @@ AWS VPN Connections setup
 
    * Create an EC2 instance in eu-west-1 with security groups `sg-172-60-0-0`. Try to ping from your `172.50.0.0/24` network.
 
-### Others
+## Others
   * If you setup strongswan at centos 7. The installation command is
 
 <pre>
@@ -167,8 +163,6 @@ yum install -y epel-release; yum reposlist; yum update -y; yum install -y strong
   * In centos, the strongswan configuration is at `/etc/strongswan/ipsec.secrets` and `/etc/strongswan/ipsec.conf`
   * recommend to config ntp to sync server time.
   * We does not cover HA yet. Please reference the [Strongswan HA](https://wiki.strongswan.org/projects/strongswan/wiki/HighAvailability) and [active-passive strongswan](https://www.strongswan.org/testing/testresults/ha/active-passive/)
-
-
 
 
 ## Reference
