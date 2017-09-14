@@ -153,6 +153,27 @@ conn vpg-52.18.222.29
 
    * Create an EC2 instance in eu-west-1 with security groups `sg-172-60-0-0`. Try to ping from your `172.50.0.0/24` network.
 
+# Lab2 - vpc-peering, NAT Gateway, NAT Instance
+
+  * You can't NAT throught vpc-peering. Please see this [support ticket](https://forums.aws.amazon.com/thread.jspa?threadID=157603)
+
+  * Default Extra Packages for Enterprise Linux (EPEL) repository is disable. You need to following the [instruction](https://aws.amazon.com/premiumsupport/knowledge-center/ec2-enable-epel/) to enable it.
+
+  <pre>
+  sudo yum-config-manager --enable epel
+  sudo yum repolist
+  </pre>
+
+  * Amazon Linux is Centos 6 version. There is no `systemctl` command. Only `service`. Reference [this](https://www.reddit.com/r/aws/comments/5fkf40/why_doesnt_the_amazon_linux_distro_have_systemctl/)
+
+  * Enable the [iptables](https://forums.aws.amazon.com/thread.jspa?threadID=56024)
+
+  <pre>
+  touch /etc/sysconfig/iptables
+  chkconfig iptables on
+  service iptables start
+  </pre>
+
 ## Others
   * If you setup strongswan at centos 7. The installation command is
 
