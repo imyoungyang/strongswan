@@ -174,6 +174,22 @@ conn vpg-52.18.222.29
   service iptables start
   </pre>
 
+## iptables
+
+  * Add the "masquerade" NAT rule for the entire VPC:
+  <pre>
+    iptables -t nat -A POSTROUTING -s 10.0.3.0/24 -o eth0 -m policy --dir out --pol ipsec -j ACCEPT
+    iptables -t nat -A POSTROUTING -s 10.0.3.0/24 -o eth0 -j MASQUERADE
+  </pre>
+
+  * Save the iptables configuration so that it will survive a reboot.
+     * RHEL/CentOS machines
+       * `/sbin/service iptables save` This will write the rules to `/etc/sysconfig/iptables`.
+     * Debian/Ubuntu machines
+       * Install iptables-persistent, if not already installed: `apt-get install iptables-persistent`. This during install it will prompt to save current rules. Say yes, to have it create `/etc/iptables/rules.v4` and `/etc/iptables/rules.v6` for you.
+       * In the future, after making changes, run `iptables-save > /etc/iptables/rules.v4` to save.
+  * check configuration. Run `iptables -L` and `iptables -t nat -L`
+
 ## Others
   * If you setup strongswan at centos 7. The installation command is
 
@@ -192,3 +208,5 @@ yum install -y epel-release; yum reposlist; yum update -y; yum install -y strong
 * [AWS Generic Config](http://docs.aws.amazon.com/AmazonVPC/latest/NetworkAdminGuide/GenericConfig.html)
 * [Connect VPCs with Strongswan]( https://asieira.github.io/connecting-aws-vpcs-with-strongswan.html)
 * [Strongswan configuration for AWS-CGW](http://blog.xk72.com/post/155816502544/aws-vpc-vpn-strongswan-configuration)
+* [ForwardingAndSplitTunneling](https://wiki.strongswan.org/projects/strongswan/wiki/ForwardingAndSplitTunneling)
+* [AwsVpc](https://wiki.strongswan.org/projects/strongswan/wiki/AwsVpc)
