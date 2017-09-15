@@ -184,6 +184,7 @@ yum install -y epel-release; yum reposlist; yum update -y; yum install -y strong
   * In centos, the strongswan configuration is at `/etc/strongswan/ipsec.secrets` and `/etc/strongswan/ipsec.conf`
   * recommend to config ntp to sync server time.
   * We does not cover HA yet. Please reference the [Strongswan HA](https://wiki.strongswan.org/projects/strongswan/wiki/HighAvailability) and [active-passive strongswan](https://www.strongswan.org/testing/testresults/ha/active-passive/)
+  * [EC2 instance recover](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-recover.html)
 
 
 ## Reference
